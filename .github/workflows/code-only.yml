@@ -1,0 +1,11 @@
+name: Code-only release check
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  code-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check source and documentation files
+        run: python3 tools/check_code_only.py
