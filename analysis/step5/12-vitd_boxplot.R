@@ -2,10 +2,8 @@ if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROO
 rm(list = ls())
 
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(gtsummary)
 library(dplyr)
@@ -14,7 +12,7 @@ setwd(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step5/"))
 
 getwd()
 
-beem <- read.csv(here("washed_data", "4_2_1_beem_vitd_sunburn_social.csv"))
+beem <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "4_2_1_beem_vitd_sunburn_social.csv"))
 
 beem_backup <- beem 
 

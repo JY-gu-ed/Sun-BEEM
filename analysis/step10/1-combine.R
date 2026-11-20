@@ -2,7 +2,6 @@ if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROO
 rm(list = ls())
 
 library(tidyverse)
-library(here)
 library(dplyr)
 
 setwd(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), ""))  # 先到父目录
@@ -10,7 +9,7 @@ if (!dir.exists("step10")) dir.create("step10", recursive = TRUE)
 setwd("step10")
 getwd()
 
-morta <- readr::read_csv(here("washed_data", "4_2_2_ana_for_mortality.csv"), show_col_types = FALSE)
+morta <- readr::read_csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "4_2_2_ana_for_mortality.csv"), show_col_types = FALSE)
 morta_backup <- morta
 
 morta <- morta %>%
@@ -40,14 +39,14 @@ mortality_vars <- c(
 morta <- morta %>%
   mutate(across(all_of(mortality_vars), ~ ifelse(. == "yes", 1, 0)))
 
-acute <- readr::read_csv(here("step8", "daily_uva_temp.csv"), show_col_types = FALSE)
+acute <- readr::read_csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step8", "daily_uva_temp.csv"), show_col_types = FALSE)
 sum(duplicated(acute$n_eid))
 
 acute_first <- acute %>%
   arrange(n_eid, year) %>%                 # 确保“第一”的定义
   distinct(n_eid, .keep_all = TRUE)
 
-acute2 <- readr::read_csv(here("step8", "UVA_UKB_allethn.csv"), show_col_types = FALSE)
+acute2 <- readr::read_csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step8", "UVA_UKB_allethn.csv"), show_col_types = FALSE)
 
 sum(duplicated(acute2$n_eid))
 acute2 %>%
@@ -68,7 +67,7 @@ morta <- morta %>%
   )
 
 metabolomics_nmr <- readr::read_csv(
-  here("washed_data", "1_7_metabolomics_nmr.csv"),
+  file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "1_7_metabolomics_nmr.csv"),
   show_col_types = FALSE
 )
 

@@ -2,10 +2,8 @@ if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROO
 rm(list = ls())
 
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(tidyverse)
-library(here)
 library(ggplot2)
 
 setwd(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step1/"))
@@ -13,9 +11,7 @@ setwd(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step1/"))
 getwd()
 
 library(tidyverse)
-library(here)
-
-nmr <- read.csv(here("raw_data_3_8", "NMR_field_columns.csv"))
+nmr <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "raw_data_3_8", "NMR_field_columns.csv"))
 
 nmr <- nmr %>%
   select(-ends_with("i1")) 

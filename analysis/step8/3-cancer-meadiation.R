@@ -5,7 +5,6 @@ setwd(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step8/"))
 getwd()
 
 library(tidyverse)
-library(here)
 library(readxl)
 library(survival)
 library(furrr)
@@ -26,16 +25,31 @@ library(survival)
 library(purrr)
 library(data.table) # for fwrite
 
-# Set SUN_BEEM_N_BOOT to the desired number of bootstrap resamples.
-# The default preserves the setting in the archived source script.
+# Bootstrap execution settings.
 n_boot <- as.numeric(Sys.getenv("SUN_BEEM_N_BOOT", unset = "50"))
-if (length(n_boot) != 1L || !is.finite(n_boot) || n_boot < 2 ||
+if (length(n_boot) != 1L || !is.finite(n_boot) || n_boot < 10 ||
     n_boot != floor(n_boot) || n_boot > .Machine$integer.max) {
-  stop("SUN_BEEM_N_BOOT must be an integer of at least 2.")
+  stop("SUN_BEEM_N_BOOT must be an integer of at least 10.")
 }
 n_boot <- as.integer(n_boot)
-message("Bootstrap resamples requested: ", n_boot)
+bootstrap_seed <- as.numeric(Sys.getenv("SUN_BEEM_SEED", unset = "123"))
+if (!is.finite(bootstrap_seed) || bootstrap_seed < 0 ||
+    bootstrap_seed != floor(bootstrap_seed) || bootstrap_seed > .Machine$integer.max) {
+  stop("SUN_BEEM_SEED must be a non-negative integer within the R integer range.")
+}
+bootstrap_seed <- as.integer(bootstrap_seed)
+message("Bootstrap resamples requested: ", n_boot, "; seed: ", bootstrap_seed)
 batch_size <- 10
+
+# Assign one stream per biomarker so resuming a subset keeps its random stream.
+RNGkind("L'Ecuyer-CMRG")
+set.seed(bootstrap_seed)
+biomarker_seeds <- vector("list", length(biomarkers_olink))
+stream <- .Random.seed
+for (j in seq_along(biomarkers_olink)) {
+  biomarker_seeds[[j]] <- stream
+  stream <- parallel::nextRNGStream(stream)
+}
 
 mea_olink_set <- mea_olink_set %>%
   mutate(
@@ -120,11 +134,29 @@ run_mediation <- function(biomarker) {
     indirect_ci_high = indirect_ci[2],
     proportion_mediated = prop_med_obs,           # fraction on log-HR scale
     prop_mediated_ci_low = prop_ci[1],
-    prop_mediated_ci_high = prop_ci[2]
+    prop_mediated_ci_high = prop_ci[2],
+    n_boot_requested = n_boot,
+    n_boot_successful = nrow(boot_res),
+    bootstrap_seed = bootstrap_seed
   )
 }
 
-result_path <- "results/olink_cancer_mediation_BEEM.csv"
+run_dir <- file.path("results", paste0("bootstrap_", n_boot, "_seed_", bootstrap_seed))
+dir.create(run_dir, recursive = TRUE, showWarnings = FALSE)
+result_path <- file.path(run_dir, "olink_cancer_mediation_BEEM.csv")
+settings_path <- file.path(run_dir, "olink_cancer_mediation_BEEM_settings.rds")
+run_settings <- list(n_boot = n_boot, seed = bootstrap_seed,
+                     biomarkers = biomarkers_olink,
+                     input_md5 = tools::md5sum(c("mea_set_merged.rds", "biomarkers_olink.rds")))
+if (file.exists(settings_path)) {
+  if (!identical(readRDS(settings_path), run_settings)) {
+    stop("Existing run settings or inputs differ; use a separate project output directory.")
+  }
+} else {
+  if (file.exists(result_path)) stop("Existing results have no matching run settings.")
+  saveRDS(run_settings, settings_path)
+}
+capture.output(sessionInfo(), file = file.path(run_dir, "olink_cancer_sessionInfo.txt"))
 
 done_vars <- if (file.exists(result_path)) {
   readr::read_csv(result_path, show_col_types = FALSE) %>% dplyr::pull(biomarker) %>% unique()
@@ -144,7 +176,7 @@ if (length(biomarkers_todo) == 0) {
     
     batch_results <- furrr::future_map(
       batch, run_mediation, .progress = TRUE,
-      .options = furrr::furrr_options(seed = TRUE)
+      .options = furrr::furrr_options(seed = biomarker_seeds[match(batch, biomarkers_olink)])
     )
     batch_df <- dplyr::bind_rows(batch_results)
     

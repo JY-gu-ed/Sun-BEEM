@@ -2,10 +2,8 @@ if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROO
 rm(list = ls())
 
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(gtsummary)
 library(dplyr)
@@ -17,7 +15,8 @@ setwd(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step8/"))
 getwd()
 
 mea_olink_set <- readRDS("mea_set_merged.rds")
-table(mea_olink_set)
+message("Protein analysis rows: ", nrow(mea_olink_set))
+if (!dir.exists("results")) dir.create("results", recursive = TRUE)
 biomarkers_olink <- readRDS("biomarkers_olink.rds")
 
 olink_lm_results <- list()

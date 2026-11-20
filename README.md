@@ -2,46 +2,56 @@
 
 Analysis code for *Long-term sun exposure is associated with reduced all-cause mortality and distinct immune–metabolic signatures* (JID-2026-1128).
 
-## Repository contents
+This repository presents the Sun-BEEM analysis workflow and statistical logic: exposure construction, clinical outcome models, molecular associations, mediation and sensitivity analyses. It contains code and documentation. UK Biobank inputs are accessed under authorisation and kept in the research environment.
 
-This repository contains source code and documentation only. No participant-level data, derived datasets, model objects, numerical result files, figures or execution logs are included.
+## Code organisation
 
-- `analysis/step1`–`step4`: exposure construction, covariates, record linkage and analysis-cohort preparation.
-- `analysis/step5`–`step7`: clinical outcomes, Cox models, scenario calculations and sensitivity analyses.
-- `analysis/step8`: proteomic association, mediation and pathway analysis.
-- `analysis/step10`: NMR preprocessing and association analysis.
-- `analysis/revision`: component, score-sensitivity, selected-biomarker and expanded-adjustment analyses.
-- `tools/check_code_only.py`: checks the repository for prohibited data files and sensitive content.
+- `analysis/step1`–`step4`: exposures, covariates, record linkage and cohort preparation.
+- `analysis/step5`–`step7`: mortality/incidence models, scenario calculations and sensitivity analyses.
+- `analysis/step8`: protein associations, mediation, integration and pathways.
+- `analysis/step10`: NMR preparation, associations, annotation and mediator selection.
+- `analysis/revision`: component models, score robustness, expanded adjustment and selected-biomarker analyses.
+- `tools`: dependency installation, project-directory preparation and the code-only check.
 
-The numbered directories follow the original project workflow. Input tables and intermediate objects referenced by the scripts must be generated or obtained within an authorised analysis environment; they are not bundled here. No automatic end-to-end execution is enabled.
+See [the workflow guide](docs/WORKFLOW.md) for execution order, input/output dependencies and bootstrap settings.
 
-## Data access
+## Setup
 
-UK Biobank data require approval from UK Biobank and are not redistributed by the authors. See https://www.ukbiobank.ac.uk/use-our-data/ for access information. Field names, outcome definitions, thresholds and model parameters in the code describe the analytical methods; they are not participant records.
+Install missing R dependencies from the code directory:
 
-## Environment and execution
-
-Install the R packages listed in `requirements-R.txt` in the authorised environment. This package list is not a version-locked environment specification.
-
-Set `SUN_BEEM_PROJECT_ROOT` to the project directory containing the authorised input and working directories. Set `SUN_BEEM_EXTERNAL_ROOT` if a script requires separately managed inputs. `.env.example` shows generic placeholders only; never commit a populated `.env` or `.Renviron` file.
-
-Scripts use the original project-relative input and output conventions. Run the required preparation stages before downstream analyses and inspect the input-file references in each script. Some analyses depend on saved intermediate objects from earlier stages. Generated outputs must remain outside this repository.
-
-Start each R process from the authorised project directory so that `here()` resolves the same project-relative inputs:
-
-```sh
-cd /path/to/authorised/project
-Rscript /path/to/Sun-BEEM/analysis/step1/1-merge_uv_data.R
+```r
+source("tools/install_dependencies.R")
 ```
 
-### Bootstrap configuration
+Set a project directory for inputs and generated outputs, then prepare its folders:
 
-The number of bootstrap resamples in the protein mediation scripts can be set as needed with `SUN_BEEM_N_BOOT`. For example, set `Sys.setenv(SUN_BEEM_N_BOOT = "1000")` in R before sourcing a mediation script. The value must be an integer of at least 2. If unset, the scripts retain the archived source setting of 50. The requested count is printed when the script runs; retain it with the run record. This configurable release does not establish the count used for previously generated manuscript results.
+```r
+Sys.setenv(SUN_BEEM_PROJECT_ROOT = "/path/to/project")
+Sys.setenv(SUN_BEEM_EXTERNAL_ROOT = "/path/to/external/inputs")
+source("tools/prepare_project.R")
+```
 
-Before committing, run:
+Run the selected stage using its code path, for example:
+
+```r
+source("/path/to/Sun-BEEM/analysis/step1/1-merge_uv_data.R")
+```
+
+Bootstrap count and seed are configurable:
+
+```r
+Sys.setenv(SUN_BEEM_N_BOOT = "1000", SUN_BEEM_SEED = "123")
+source("/path/to/Sun-BEEM/analysis/step8/3-cancer-meadiation.R")
+```
+
+Each count/seed combination has a separate output directory and saved run settings. The example sets 1,000 resamples; the default count is 50.
+
+## Data access and repository checks
+
+UK Biobank access information: https://www.ukbiobank.ac.uk/use-our-data/
+
+Keep project data, generated results and local run records outside the code directory. Before publishing code changes, run the [UK Biobank Git Audit Tool](https://github.com/UK-Biobank/UKB-Git-Audit-Tool) and the source-file check:
 
 ```sh
 python tools/check_code_only.py
 ```
-
-The check reads source files only; it does not run the UK Biobank analyses.

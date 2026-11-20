@@ -2,10 +2,8 @@ if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROO
 rm(list = ls())
 
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(gtsummary)
 library(dplyr)
@@ -28,7 +26,7 @@ save_event_summary <- function(data, event_col, outcome_name, out_file) {
   write.csv(event_summary, out_file, row.names = FALSE)
 }
 
-cancer <- read.csv(here("washed_data", "4_2_4_ana_for_allcancer_reg.csv"))
+cancer <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "4_2_4_ana_for_allcancer_reg.csv"))
 
 cancer_backup <- cancer
 table(cancer$cancer_status)
@@ -149,7 +147,7 @@ save_event_summary(
   out_file = "../result/7_1_1_cancerall_event_summary.csv"
 )
 
-cancer <- read.csv(here("washed_data", "4_2_5_ana_for_skin_cancer_reg.csv"))
+cancer <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "4_2_5_ana_for_skin_cancer_reg.csv"))
 
 cancer_backup <- cancer
 table(cancer$skin_cancer_status)
@@ -270,7 +268,7 @@ save_event_summary(
   out_file = "../result/7_1_2_skin_cancer_event_summary.csv"
 )
 
-cancer <- read.csv(here("washed_data", "4_2_6_ana_for_melanoma_reg.csv"))
+cancer <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "4_2_6_ana_for_melanoma_reg.csv"))
 
 cancer_backup <- cancer
 table(cancer$melanoma_status)
@@ -392,7 +390,7 @@ save_event_summary(
   out_file = "../result/7_1_3_melanoma_event_summary.csv"
 )
 
-cancer <- read.csv(here("washed_data", "4_2_7_ana_for_other_skin_cancer_reg.csv"))
+cancer <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "4_2_7_ana_for_other_skin_cancer_reg.csv"))
 
 cancer_backup <- cancer
 table(cancer$other_skin_cancer_status)
@@ -514,7 +512,7 @@ save_event_summary(
   out_file = "../result/7_1_4_other_skin_cancer_event_summary.csv"
 )
 
-cancer <- read.csv(here("washed_data", "4_2_8_ana_for_non_skin_cancer_reg.csv"))
+cancer <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "4_2_8_ana_for_non_skin_cancer_reg.csv"))
 
 cancer_backup <- cancer
 table(cancer$non_skin_cancer_status)

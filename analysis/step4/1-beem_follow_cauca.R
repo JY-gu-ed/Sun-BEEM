@@ -2,20 +2,18 @@ if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROO
 rm(list = ls())
 
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(tidyverse)
-library(here)
 library(ggplot2)
 
 setwd(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step4/"))
 
 getwd()
 
-beem <- read.csv(here("washed_data", "1_3_bi_merged_uv.csv"))
+beem <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "1_3_bi_merged_uv.csv"))
 nrow(beem)
 
-lost_to_followup <- read.table(here("washed_data", "3_1_0_eid_lost_to_followup.txt"),
+lost_to_followup <- read.table(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "3_1_0_eid_lost_to_followup.txt"),
                                header = FALSE,  # 没有列名
                                col.names = "eid") # 自定义列名为 eid
 
@@ -23,7 +21,7 @@ beem <- beem %>%
   anti_join(lost_to_followup, by = "eid")
 nrow(beem)
 
-cau <- read.csv(here("washed_data", "1_6_ances_data.csv"))
+cau <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "1_6_ances_data.csv"))
 beem <- beem %>%
   semi_join(cau %>% select(eid), by = "eid")
 

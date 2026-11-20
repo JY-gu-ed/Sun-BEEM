@@ -2,10 +2,8 @@ if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROO
 rm(list = ls())
 
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(gtsummary)
 library(dplyr)
@@ -16,7 +14,7 @@ setwd(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step6/"))
 
 getwd()
 
-cvd <- read.csv(here("washed_data", "4_2_3_ana_for_cvd_inpatient.csv"))
+cvd <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "4_2_3_ana_for_cvd_inpatient.csv"))
 
 cvd_backup <- cvd
 table(cvd$cvd_mortality_narrow)

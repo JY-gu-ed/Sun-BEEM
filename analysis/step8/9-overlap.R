@@ -8,11 +8,11 @@ library(tidyverse)
 library(ggplot2)
 library(readr)
 
-top15_cvd <- read.csv("results/vis/cvd/Top15_protective_mediators_cancer_mortality.csv")
-View(top15_cvd)
+top15_cvd <- read.csv("results/vis/cvd/Top15_protective_mediators_cvd_mortality.csv")
+if (interactive()) View(top15_cvd)
 
 top15_cancer <- read.csv("results/vis/cancer/Top15_protective_mediators_cancer_mortality.csv")
-View(top15_cancer)
+if (interactive()) View(top15_cancer)
 bm_cvd    <- top15_cvd$biomarker
 bm_cancer <- top15_cancer$biomarker
 

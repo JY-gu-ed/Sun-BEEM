@@ -2,14 +2,11 @@ if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROO
 rm(list = ls())
 
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(dplyr)
 library(tidyverse)
-library(here)
 library(lubridate)
 library(mice)
 
@@ -18,14 +15,13 @@ setwd(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step3/"))
 getwd()
 
 library(tidyverse)
-library(here)
 library(lubridate)
 
-hos_de_ca <- read_csv(here("raw_data_3_8", "hos_de_ca_3_8.csv"))
-date_assess <- read_csv(here("raw_data_3_8", "socia_field_columns.csv")) %>% 
+hos_de_ca <- read_csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "raw_data_3_8", "hos_de_ca_3_8.csv"))
+date_assess <- read_csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "raw_data_3_8", "socia_field_columns.csv")) %>% 
   select(eid, p53_i0)
 
-date_an <- read_csv(here("raw_data_3_8", "request_an_columns.csv"))
+date_an <- read_csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "raw_data_3_8", "request_an_columns.csv"))
 
 lost_eids <- date_an %>%
   filter(!is.na(p191)) %>%

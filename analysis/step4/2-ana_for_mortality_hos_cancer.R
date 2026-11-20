@@ -2,23 +2,21 @@ if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROO
 rm(list = ls())
 
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(tidyverse)
-library(here)
 library(ggplot2)
 
 setwd(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step4/"))
 
 getwd()
 
-beem <- read.csv(here("washed_data", "4_1_beem_follow_cauca.csv"))
-social <- read.csv(here("washed_data", "2_1_2_social_mice_imputed.csv"))
-sunburn <-  read.csv(here("washed_data", "1_4_sunburn_child_data.csv"))
-vitd  <-  read.csv(here("washed_data", "1_5_vitd_child_data.csv"))
-morta <- read.csv(here("washed_data", "3_2_recoded_death.csv"))
-hos <- read.csv(here("washed_data", "3_3_recoded_inpatient_cvd.csv"))
-cancer <- read.csv(here("washed_data", "3_4_recoded_cancer.csv"))
+beem <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "4_1_beem_follow_cauca.csv"))
+social <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "2_1_2_social_mice_imputed.csv"))
+sunburn <-  read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "1_4_sunburn_child_data.csv"))
+vitd  <-  read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "1_5_vitd_child_data.csv"))
+morta <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "3_2_recoded_death.csv"))
+hos <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "3_3_recoded_inpatient_cvd.csv"))
+cancer <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "3_4_recoded_cancer.csv"))
 
 vitd <- vitd %>%
   rename(vitd = p30890_i0)

@@ -6,8 +6,6 @@ library(survival)
 library(broom)
 library(purrr)
 library(ggplot2)
-library(here)
-
 setwd(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step7/"))
 
 outdir <- "../result/stepwise/"
@@ -117,7 +115,7 @@ outcomes <- list(
 final_tbl_inc <- map_dfr(names(outcomes), function(oc){
   info <- outcomes[[oc]]
   
-  cancer <- read.csv(here("washed_data", info$file)) %>%
+  cancer <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", info$file)) %>%
     prep_cancer_data(status_col=info$status, after_col=info$after)
   
   run_one_incidence(cancer, "diag_time", "status_bin", oc)

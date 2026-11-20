@@ -6,7 +6,6 @@ getwd()
 getwd()
 
 library(tidyverse)
-library(here)
 library(readxl)
 library(survival)
 library(furrr)
@@ -17,9 +16,19 @@ library(future)
 input_dir <- file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step8/results/")
 output_dir <- file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step8/results/combine/")
 
+n_boot <- as.numeric(Sys.getenv("SUN_BEEM_N_BOOT", unset = "50"))
+bootstrap_seed <- as.numeric(Sys.getenv("SUN_BEEM_SEED", unset = "123"))
+if (!is.finite(n_boot) || n_boot < 10 || n_boot != floor(n_boot) || n_boot > .Machine$integer.max ||
+    !is.finite(bootstrap_seed) || bootstrap_seed < 0 || bootstrap_seed != floor(bootstrap_seed) ||
+    bootstrap_seed > .Machine$integer.max) stop("Invalid bootstrap execution settings.")
+run_name <- paste0("bootstrap_", as.integer(n_boot), "_seed_", as.integer(bootstrap_seed))
+mediation_dir <- file.path(input_dir, run_name)
+output_dir <- file.path(output_dir, run_name, "")
+dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+
 prefix <- "cvd"  # 或 "allcause"、"diabetes" 等
 
-med <- read_csv(paste0(input_dir, "olink_", prefix, "_mediation_BEEM.csv"), show_col_types = FALSE)# 读取中介分析结果和线性回归结果
+med <- read_csv(file.path(mediation_dir, paste0("olink_", prefix, "_mediation_BEEM.csv")), show_col_types = FALSE)# 读取中介分析结果和线性回归结果
 lm <- read_csv(paste0(input_dir, "2_olink_BEEM_lm_trend_results_FDR.csv"), show_col_types = FALSE)
 
 merged <- med %>%

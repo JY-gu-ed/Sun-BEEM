@@ -2,10 +2,8 @@ if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROO
 rm(list = ls())
 
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(tidyverse)
-library(here)
 library(ggplot2)
 
 setwd(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step1/"))
@@ -13,7 +11,6 @@ setwd(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step1/"))
 getwd()
 
 library(tidyverse)
-library(here)
 library(ggplot2)
 
 raw_uv <- read_csv("../raw_data_3_8/uv_3_8.csv")

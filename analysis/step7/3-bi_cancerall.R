@@ -2,10 +2,8 @@ if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROO
 rm(list = ls())
 
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(gtsummary)
 library(dplyr)
@@ -19,8 +17,6 @@ library(tidyverse)
 library(survival)
 library(broom)
 library(rlang)
-library(here)
-
 endtime <- as.Date("2025-08-04")  # 随访截止
 
 outcomes_cfg <- tribble(
@@ -41,7 +37,7 @@ fit_one <- function(in_csv, status_var, after_var, exposure_var,
   as_sym     <- sym(date_assess)
   expo_sym   <- sym(exposure_var)
   
-  dat <- read.csv(here("washed_data", in_csv))
+  dat <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", in_csv))
   
   dat <- dat %>% filter(is.na(!!after_sym) | !!after_sym != "no")
   

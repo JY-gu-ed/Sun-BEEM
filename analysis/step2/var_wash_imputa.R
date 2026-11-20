@@ -2,14 +2,11 @@ if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROO
 rm(list = ls())
 
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(tidyverse)
-library(here)
 library(ggplot2)
 library(dplyr)
 library(tidyverse)
-library(here)
 library(lubridate)
 library(mice)
 
@@ -17,9 +14,9 @@ setwd(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step2/"))
 
 getwd()
 
-social_field_columns <- read_csv(here("raw_data_3_8", "socia_field_columns.csv"), show_col_types = FALSE) 
+social_field_columns <- read_csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "raw_data_3_8", "socia_field_columns.csv"), show_col_types = FALSE) 
 
-alcohol_columns <- read_csv(here("raw_data_3_8", "alcohol_columns.csv"), show_col_types = FALSE) 
+alcohol_columns <- read_csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "raw_data_3_8", "alcohol_columns.csv"), show_col_types = FALSE) 
 
 merged_data <- inner_join(social_field_columns, alcohol_columns, by = "eid")
 
