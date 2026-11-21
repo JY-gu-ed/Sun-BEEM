@@ -1,5 +1,8 @@
 if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROOT to the authorised project directory before running this script.")
 rm(list = ls())
+if (!nzchar(Sys.getenv("SUN_BEEM_CODE_ROOT"))) stop("Set SUN_BEEM_CODE_ROOT or use tools/run_analysis.R.")
+source(file.path(Sys.getenv("SUN_BEEM_CODE_ROOT"), "analysis/shared/followup.R"))
+
 
 library(tidyverse)
 library(survival)
@@ -12,14 +15,13 @@ outdir <- "../result/stepwise/"
 dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
 
 prep_cancer_data <- function(df, status_col, after_col, date_col="cancer_date") {
-  endtime <- as.Date("2025-08-04")
+  endtime <- registry_end_date("cancer")
   
-  df <- df %>%
+  df <- apply_incidence_followup(df, status_col, date_col, endtime, baseline_col = "date_assess")
+df <- df %>%
     filter(is.na(.data[[after_col]]) | .data[[after_col]] != "no") %>%
     mutate(
-      diag_time = ifelse(!is.na(.data[[status_col]]) & .data[[status_col]] == "yes",
-                         as.numeric(as.Date(.data[[date_col]]) - as.Date(date_assess)),
-                         as.numeric(endtime) - as.numeric(as.Date(date_assess))),
+      diag_time = diag_time,
       status_bin = coalesce(as.integer(.data[[status_col]] == "yes"), 0L),
       BEEM = factor(BEEM, levels=c("low","medium","high")),
       BEEM_numeric = as.numeric(BEEM),  # low=1, medium=2, high=3

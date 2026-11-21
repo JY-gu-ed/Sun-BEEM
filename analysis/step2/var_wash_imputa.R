@@ -58,6 +58,7 @@ mean_imputation <- function(data, variable) {
   return(data)
 }
 
+continuous_observed <- data.frame(eid = final_data$eid, observed = !is.na(final_data$p21001_i0) & !is.na(final_data$p22189))
 final_data <- mean_imputation(final_data, "p21001_i0") # bmi
 final_data <- mean_imputation(final_data, "p22189") # townsend
 
@@ -174,6 +175,14 @@ clean_social_field_columns <- final_data %>%
       TRUE ~ NA_character_
     )
   )
+
+complete_variables <- c("sex", "age", "bmi", "deprivation_quintile", "highest_edu",
+                        "smoking_status", "phys_activity", "drinking",
+                        "sleep_duration", "chronotype", "insomnia", "snoring", "day_sleepy")
+observed <- complete.cases(clean_social_field_columns[, complete_variables]) &
+  continuous_observed$observed[match(clean_social_field_columns$eid, continuous_observed$eid)]
+readr::write_csv(data.frame(eid = clean_social_field_columns$eid, core_complete_case = observed),
+                 "../washed_data/2_1_0_covariate_complete_cases.csv")
 
 clean_social_field_columns <- proportional_imputation(clean_social_field_columns, sleep_duration)
 clean_social_field_columns <- proportional_imputation(clean_social_field_columns, chronotype)

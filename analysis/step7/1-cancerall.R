@@ -1,5 +1,8 @@
 if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROOT to the authorised project directory before running this script.")
 rm(list = ls())
+if (!nzchar(Sys.getenv("SUN_BEEM_CODE_ROOT"))) stop("Set SUN_BEEM_CODE_ROOT or use tools/run_analysis.R.")
+source(file.path(Sys.getenv("SUN_BEEM_CODE_ROOT"), "analysis/shared/followup.R"))
+
 
 library(tidyverse)
 library(ggplot2)
@@ -36,16 +39,13 @@ library(dplyr)
 cancer <- cancer %>%
   filter(is.na(diagnosed_after_assessment) | diagnosed_after_assessment != "no")
 
-endtime <- "2025-08-04" # most recent date code has been run
+endtime <- registry_end_date("cancer")
 endtime <- as.Date(endtime)
 
+cancer <- apply_incidence_followup(cancer, "cancer_status", "cancer_date", endtime, baseline_col = "date_assess")
 cancer <- cancer %>%
   mutate(
-    diag_time = ifelse(
-      !is.na(cancer_status) & cancer_status == "yes",
-      as.numeric(as.Date(cancer_date) - as.Date(date_assess)),
-      as.numeric(endtime) - as.numeric(as.Date(date_assess))
-    )
+    diag_time = diag_time
   )
 
 library(dplyr)
@@ -157,16 +157,13 @@ library(dplyr)
 cancer <- cancer %>%
   filter(is.na(skin_cancer_after_assessment) | skin_cancer_after_assessment != "no")
 
-endtime <- "2025-08-04" # most recent date code has been run
+endtime <- registry_end_date("cancer")
 endtime <- as.Date(endtime)
 
+cancer <- apply_incidence_followup(cancer, "skin_cancer_status", "cancer_date", endtime, baseline_col = "date_assess")
 cancer <- cancer %>%
   mutate(
-    diag_time = ifelse(
-      !is.na(skin_cancer_status) & skin_cancer_status == "yes",
-      as.numeric(as.Date(cancer_date) - as.Date(date_assess)),
-      as.numeric(endtime) - as.numeric(as.Date(date_assess))
-    )
+    diag_time = diag_time
   )
 
 library(dplyr)
@@ -278,16 +275,13 @@ library(dplyr)
 cancer <- cancer %>%
   filter(is.na(melanoma_after_assessment) | melanoma_after_assessment != "no")
 
-endtime <- "2025-08-04" # most recent date code has been run
+endtime <- registry_end_date("cancer")
 endtime <- as.Date(endtime)
 
+cancer <- apply_incidence_followup(cancer, "melanoma_status", "cancer_date", endtime, baseline_col = "date_assess")
 cancer <- cancer %>%
   mutate(
-    diag_time = ifelse(
-      !is.na(melanoma_status) & melanoma_status == "yes",
-      as.numeric(as.Date(cancer_date) - as.Date(date_assess)),
-      as.numeric(endtime) - as.numeric(as.Date(date_assess))
-    )
+    diag_time = diag_time
   )
 
 library(dplyr)
@@ -400,16 +394,13 @@ library(dplyr)
 cancer <- cancer %>%
   filter(is.na(other_skin_cancer_after_assessment) | other_skin_cancer_after_assessment != "no")
 
-endtime <- "2025-08-04" # most recent date code has been run
+endtime <- registry_end_date("cancer")
 endtime <- as.Date(endtime)
 
+cancer <- apply_incidence_followup(cancer, "other_skin_cancer_status", "cancer_date", endtime, baseline_col = "date_assess")
 cancer <- cancer %>%
   mutate(
-    diag_time = ifelse(
-      !is.na(other_skin_cancer_status) & other_skin_cancer_status == "yes",
-      as.numeric(as.Date(cancer_date) - as.Date(date_assess)),
-      as.numeric(endtime) - as.numeric(as.Date(date_assess))
-    )
+    diag_time = diag_time
   )
 
 library(dplyr)
@@ -522,16 +513,13 @@ library(dplyr)
 cancer <- cancer %>%
   filter(is.na(non_skin_cancer_after_assessment) | non_skin_cancer_after_assessment != "no")
 
-endtime <- "2025-08-04" # most recent date code has been run
+endtime <- registry_end_date("cancer")
 endtime <- as.Date(endtime)
 
+cancer <- apply_incidence_followup(cancer, "non_skin_cancer_status", "cancer_date", endtime, baseline_col = "date_assess")
 cancer <- cancer %>%
   mutate(
-    diag_time = ifelse(
-      !is.na(non_skin_cancer_status) & non_skin_cancer_status == "yes",
-      as.numeric(as.Date(cancer_date) - as.Date(date_assess)),
-      as.numeric(endtime) - as.numeric(as.Date(date_assess))
-    )
+    diag_time = diag_time
   )
 
 library(dplyr)

@@ -1,6 +1,9 @@
 if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROOT to the authorised project directory before running this script.")
 suppressPackageStartupMessages({library(data.table); library(survival)})
 setDTthreads(1); options(mc.cores=1); set.seed(20261104)
+if (!nzchar(Sys.getenv("SUN_BEEM_CODE_ROOT"))) stop("Set SUN_BEEM_CODE_ROOT or use tools/run_analysis.R.")
+source(file.path(Sys.getenv("SUN_BEEM_CODE_ROOT"), "analysis/shared/followup.R"))
+
 root <- file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "")
 rev <- file.path(root,'JID_R1_20261104'); out <- file.path(rev,'results')
 dir.create(out,recursive=TRUE,showWarnings=FALSE)
@@ -46,8 +49,8 @@ for(i in seq_len(nrow(spec))){
   z$death_time<-d$death_time[match(z$eid,d$eid)];stopifnot(!anyNA(z$death_time))
   dt<-if(i==1)'diag_date' else 'cancer_date';z[,diagnosis_days:=as.numeric(as.Date(get(dt))-as.Date(date_assess))]
   z[,legacy_event:=!is.na(get(spec$status[i]))&get(spec$status[i])=='yes']
-  z[,event:=as.integer(legacy_event&!is.na(diagnosis_days)&diagnosis_days>0&diagnosis_days<=death_time)]
-  z[,time:=pmin(death_time,fifelse(event==1,diagnosis_days,Inf))];z<-prep(z[time>0])
+  z<-as.data.table(apply_incidence_followup(as.data.frame(z),spec$status[i],dt,registry_end_date(if(i==1)'hospital' else 'cancer')))
+  z[,event:=as.integer(get(spec$status[i])=='yes')];z[,time:=diag_time];z<-prep(z)
   ia[[i]]<-data.table(outcome=spec$outcome[i],N=nrow(z),events=sum(z$event),original_events=sum(z$legacy_event),postdeath_events=sum(z$legacy_event&z$diagnosis_days>z$death_time,na.rm=TRUE))
   for(v in comp){f<-cox(z,'event',v,'time');inc[[length(inc)+1]]<-extract(f,spec$outcome[i],paste0('component_',v),v)}
   f<-cox(z,'event',comp,'time');inc[[length(inc)+1]]<-extract(f,spec$outcome[i],'mutually_adjusted_components',comp)

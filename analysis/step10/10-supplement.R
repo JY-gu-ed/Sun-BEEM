@@ -5,14 +5,22 @@ dir.create(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step10/supplement"),
            showWarnings = FALSE)
 
 library(dplyr)
+n_boot <- as.numeric(Sys.getenv("SUN_BEEM_N_BOOT", unset = "1000"))
+seed <- as.numeric(Sys.getenv("SUN_BEEM_SEED", unset = "123"))
+if (!is.finite(n_boot) || n_boot < 10 || n_boot != floor(n_boot) || n_boot > .Machine$integer.max ||
+    !is.finite(seed) || seed < 0 || seed != floor(seed) || seed > .Machine$integer.max) stop("Invalid bootstrap settings.")
+input_dir <- file.path("results/combine", paste0("bootstrap_", as.integer(n_boot), "_seed_", as.integer(seed)))
+output_dir <- file.path(input_dir, "supplement")
+dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+
 cvd <- read.csv(
-  "cvd_mortality_mt_uv_mediation_significant_hits_annotated__keepTitlesIn_Nightingale_no_to__KEPT.csv"
+  file.path(input_dir, "cvd_mortality_mt_uv_mediation_significant_hits_annotated__keepTitlesIn_Nightingale_no_to__KEPT.csv")
 )
 
 head(cvd)
 dim(cvd)
 cancer <- read.csv(
-  "cancer_mt_uv_mediation_significant_hits_annotated__keepTitlesIn_Nightingale_no_to__KEPT.csv"
+  file.path(input_dir, "cancer_mt_uv_mediation_significant_hits_annotated__keepTitlesIn_Nightingale_no_to__KEPT.csv")
 )
 
 head(cancer)
@@ -44,12 +52,12 @@ message("Metabolomic protective mediators (Cancer): ",
 
 write.csv(
   cvd_protective_axb,
-  "Supplementary_Data_S3_Metabolomic_Protective_Mediators_CVD.csv",
+  file.path(output_dir, "Supplementary_Data_S3_Metabolomic_Protective_Mediators_CVD.csv"),
   row.names = FALSE
 )
 
 write.csv(
   cancer_protective_axb,
-  "Supplementary_Data_S4_Metabolomic_Protective_Mediators_Cancer.csv",
+  file.path(output_dir, "Supplementary_Data_S4_Metabolomic_Protective_Mediators_Cancer.csv"),
   row.names = FALSE
 )

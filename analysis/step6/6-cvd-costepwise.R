@@ -1,5 +1,8 @@
 if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROOT to the authorised project directory before running this script.")
 rm(list = ls())
+if (!nzchar(Sys.getenv("SUN_BEEM_CODE_ROOT"))) stop("Set SUN_BEEM_CODE_ROOT or use tools/run_analysis.R.")
+source(file.path(Sys.getenv("SUN_BEEM_CODE_ROOT"), "analysis/shared/followup.R"))
+
 
 library(tidyverse)
 library(survival)
@@ -14,14 +17,11 @@ cvd <- read.csv("../washed_data/4_2_3_ana_for_cvd_inpatient.csv")
 cvd <- cvd %>%
   filter(is.na(diagnosed_after_assessment) | diagnosed_after_assessment != "no")
 
-endtime <- as.Date("2025-08-04")
+endtime <- registry_end_date("hospital")
+cvd <- apply_incidence_followup(cvd, "cvd_mortality_narrow", "diag_date", endtime, baseline_col = "date_assess")
 cvd <- cvd %>%
   mutate(
-    diag_time = ifelse(
-      !is.na(cvd_mortality_narrow) & cvd_mortality_narrow == "yes",
-      as.numeric(as.Date(diag_date) - as.Date(date_assess)),
-      as.numeric(endtime) - as.numeric(as.Date(date_assess))
-    ),
+    diag_time = diag_time,
     cvd_mortality_narrow_bin = coalesce(as.integer(cvd_mortality_narrow == "yes"), 0L)
   ) %>%
   mutate(

@@ -1,5 +1,8 @@
 if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROOT to the authorised project directory before running this script.")
 rm(list = ls())
+if (!nzchar(Sys.getenv("SUN_BEEM_CODE_ROOT"))) stop("Set SUN_BEEM_CODE_ROOT or use tools/run_analysis.R.")
+source(file.path(Sys.getenv("SUN_BEEM_CODE_ROOT"), "analysis/shared/followup.R"))
+
 
 library(tidyverse)
 library(ggplot2)
@@ -17,7 +20,7 @@ library(tidyverse)
 library(survival)
 library(broom)
 library(rlang)
-endtime <- as.Date("2025-08-04")  # 随访截止
+endtime <- registry_end_date("cancer")
 
 outcomes_cfg <- tribble(
   ~in_csv,                                 ~status_var,               ~after_var,
@@ -41,13 +44,10 @@ fit_one <- function(in_csv, status_var, after_var, exposure_var,
   
   dat <- dat %>% filter(is.na(!!after_sym) | !!after_sym != "no")
   
-  dat <- dat %>%
+  dat <- apply_incidence_followup(dat, status_var, date_event, endtime, baseline_col = date_assess)
+dat <- dat %>%
     mutate(
-      diag_time = ifelse(
-        !is.na(!!status_sym) & !!status_sym == "yes",
-        as.numeric(as.Date(!!ev_sym) - as.Date(!!as_sym)),
-        as.numeric(endtime) - as.numeric(as.Date(!!as_sym))
-      )
+      diag_time = diag_time
     )
   
   event_bin <- paste0(status_var, "_bin")

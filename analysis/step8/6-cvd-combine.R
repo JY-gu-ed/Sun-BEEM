@@ -16,7 +16,7 @@ library(future)
 input_dir <- file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step8/results/")
 output_dir <- file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "step8/results/combine/")
 
-n_boot <- as.numeric(Sys.getenv("SUN_BEEM_N_BOOT", unset = "50"))
+n_boot <- as.numeric(Sys.getenv("SUN_BEEM_N_BOOT", unset = "1000"))
 bootstrap_seed <- as.numeric(Sys.getenv("SUN_BEEM_SEED", unset = "123"))
 if (!is.finite(n_boot) || n_boot < 10 || n_boot != floor(n_boot) || n_boot > .Machine$integer.max ||
     !is.finite(bootstrap_seed) || bootstrap_seed < 0 || bootstrap_seed != floor(bootstrap_seed) ||

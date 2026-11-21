@@ -1,5 +1,8 @@
 if (!nzchar(Sys.getenv("SUN_BEEM_PROJECT_ROOT"))) stop("Set SUN_BEEM_PROJECT_ROOT to the authorised project directory before running this script.")
 rm(list = ls())
+if (!nzchar(Sys.getenv("SUN_BEEM_CODE_ROOT"))) stop("Set SUN_BEEM_CODE_ROOT or use tools/run_analysis.R.")
+source(file.path(Sys.getenv("SUN_BEEM_CODE_ROOT"), "analysis/shared/followup.R"))
+
 
 library(tidyverse)
 library(ggplot2)
@@ -24,16 +27,13 @@ library(dplyr)
 cvd <- cvd %>%
   filter(is.na(diagnosed_after_assessment) | diagnosed_after_assessment != "no")
 
-endtime <- "2025-08-04" # most recent date code has been run
+endtime <- registry_end_date("hospital")
 endtime <- as.Date(endtime)
 
+cvd <- apply_incidence_followup(cvd, "cvd_mortality_narrow", "diag_date", endtime, baseline_col = "date_assess")
 cvd <- cvd %>%
   mutate(
-    diag_time = ifelse(
-      !is.na(cvd_mortality_narrow) & cvd_mortality_narrow == "yes",
-      as.numeric(as.Date(diag_date) - as.Date(date_assess)),
-      as.numeric(endtime) - as.numeric(as.Date(date_assess))
-    )
+    diag_time = diag_time
   )
 
 library(dplyr)

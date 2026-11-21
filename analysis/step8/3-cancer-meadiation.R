@@ -26,7 +26,7 @@ library(purrr)
 library(data.table) # for fwrite
 
 # Bootstrap execution settings.
-n_boot <- as.numeric(Sys.getenv("SUN_BEEM_N_BOOT", unset = "50"))
+n_boot <- as.numeric(Sys.getenv("SUN_BEEM_N_BOOT", unset = "1000"))
 if (length(n_boot) != 1L || !is.finite(n_boot) || n_boot < 10 ||
     n_boot != floor(n_boot) || n_boot > .Machine$integer.max) {
   stop("SUN_BEEM_N_BOOT must be an integer of at least 10.")
@@ -88,7 +88,7 @@ run_mediation <- function(biomarker) {
     select(death_time, cancer_mortality, BEEM_num, age, sex, bmi,
            deprivation_quintile, highest_edu, smoking_status, phys_activity,
            sleep_score, drinking, !!sym(biomarker)) %>%
-    tidyr::drop_na(BEEM_num, !!sym(biomarker), death_time, cancer_mortality)
+    tidyr::drop_na()
   
   if (nrow(biomarker_mea) < 100 || dplyr::n_distinct(biomarker_mea$BEEM_num) < 2) return(NULL)
   

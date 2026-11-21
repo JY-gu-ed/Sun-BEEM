@@ -21,7 +21,7 @@ library(lubridate)
 
 cancer_cases <- outcomes %>%
   mutate(
-    cancer_status = ifelse(!is.na(cancer_icd10) & cancer_icd10 != "", "yes", "no"),
+    cancer_status = ifelse(!is.na(cancer_icd10) & str_detect(cancer_icd10, "^(C([0-8][0-9]|9[0-7])|D(3[7-9]|4[0-8]))"), "yes", "no"),
     cancer_date = ymd(cancer_date),
     assessment_date = ymd(p53_i0),
     diagnosed_after_assessment = ifelse(cancer_status == "yes" & cancer_date > assessment_date, "yes", "no")
@@ -105,7 +105,7 @@ cat("非黑色素瘤体检后诊断记录数:", n_other_skin_cancer_after, "\n")
 cat("非黑色素瘤体检后诊断的唯一患者数:", n_other_skin_cancer_after_patients, "\n")
 
 cancer_cases <- cancer_cases %>%
-  filter(!is.na(cancer_icd10) & cancer_icd10 != "") %>%
+  filter(cancer_status == "yes") %>%
   mutate(
     cancer_date = ymd(cancer_date),
     assessment_date = ymd(p53_i0),

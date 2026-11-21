@@ -44,12 +44,6 @@ library(dplyr)
 if(exists("beem")) {
   beem$BEEM <- factor(beem$BEEM, levels = c("low", "medium", "high"))
   beem_clean <- beem %>% filter(!is.na(vitd) & !is.na(BEEM))
-} else {
-  set.seed(123)
-  beem_clean <- data.frame(
-    BEEM = factor(rep(c("low", "medium", "high"), each=100), levels = c("low", "medium", "high")),
-    vitd = c(rnorm(100, 45, 15), rnorm(100, 55, 15), rnorm(100, 60, 15))
-  )
 }
 
 main_color <- "#C77C2E"  # 边框深色

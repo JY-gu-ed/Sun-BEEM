@@ -16,6 +16,15 @@ sunburn <-  read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data
 vitd  <-  read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "1_5_vitd_child_data.csv"))
 morta <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "3_2_recoded_death.csv"))
 hos <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "3_3_recoded_inpatient_cvd.csv"))
+
+followup_dates <- morta %>% select(eid, date_assess, death_date)
+loss_dates <- readr::read_csv(
+  file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "raw_data_3_8", "request_an_columns.csv"),
+  col_select = c(eid, p191), show_col_types = FALSE
+) %>% rename(loss_to_followup_date = p191)
+stopifnot(!anyDuplicated(followup_dates$eid), !anyDuplicated(loss_dates$eid))
+followup_dates <- left_join(followup_dates, loss_dates, by = "eid")
+
 cancer <- read.csv(file.path(Sys.getenv("SUN_BEEM_PROJECT_ROOT"), "washed_data", "3_4_recoded_cancer.csv"))
 
 vitd <- vitd %>%
@@ -49,7 +58,7 @@ beem_hos <- beem_vitd_sunburn_social %>%
   left_join(hos %>% select(-p53_i0, -assessment_date), by = "eid")
 
 beem_hos <- beem_hos %>%
-  left_join(morta %>% select(eid, date_assess), by = "eid")
+  left_join(followup_dates, by = "eid")
 
 readr::write_csv(beem_hos, "../washed_data/4_2_3_ana_for_cvd_inpatient.csv")
 
@@ -65,7 +74,7 @@ beem_cancer <- beem_vitd_sunburn_social %>%
   left_join(cancer_sub, by = "eid")
 
 beem_cancer <- beem_cancer %>%
-  left_join(morta %>% select(eid, date_assess), by = "eid")
+  left_join(followup_dates, by = "eid")
 
 readr::write_csv(beem_cancer, "../washed_data/4_2_4_ana_for_allcancer_reg.csv")
 
@@ -84,7 +93,7 @@ beem_skin_cancer_sub <- beem_vitd_sunburn_social %>%
   left_join(skin_cancer_sub, by = "eid")
 
 beem_skin_cancer_sub <- beem_skin_cancer_sub %>%
-  left_join(morta %>% select(eid, date_assess), by = "eid")
+  left_join(followup_dates, by = "eid")
 
 readr::write_csv(beem_skin_cancer_sub, "../washed_data/4_2_5_ana_for_skin_cancer_reg.csv")
 
@@ -99,7 +108,7 @@ melanoma_sub <- cancer %>%
 
 beem_melanoma_sub <- beem_vitd_sunburn_social %>%
   left_join(melanoma_sub, by = "eid") %>%
-  left_join(morta %>% select(eid, date_assess), by = "eid")
+  left_join(followup_dates, by = "eid")
 
 readr::write_csv(beem_melanoma_sub,
                  "../washed_data/4_2_6_ana_for_melanoma_reg.csv")
@@ -117,7 +126,7 @@ other_skin_cancer_sub <- cancer %>%
 
 beem_other_skin_cancer_sub <- beem_vitd_sunburn_social %>%
   left_join(other_skin_cancer_sub, by = "eid") %>%
-  left_join(morta %>% select(eid, date_assess), by = "eid")
+  left_join(followup_dates, by = "eid")
 
 readr::write_csv(beem_other_skin_cancer_sub,
                  "../washed_data/4_2_7_ana_for_other_skin_cancer_reg.csv")
@@ -133,7 +142,7 @@ non_skin_cancer_sub <- cancer %>%
 
 beem_non_skin_cancer_sub <- beem_vitd_sunburn_social %>%
   left_join(non_skin_cancer_sub, by = "eid") %>%
-  left_join(morta %>% select(eid, date_assess), by = "eid")
+  left_join(followup_dates, by = "eid")
 
 readr::write_csv(beem_non_skin_cancer_sub,
                  "../washed_data/4_2_8_ana_for_non_skin_cancer_reg.csv")

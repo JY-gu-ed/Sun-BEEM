@@ -2,7 +2,7 @@
 
 Analysis code for *Long-term sun exposure is associated with reduced all-cause mortality and distinct immune–metabolic signatures* (JID-2026-1128).
 
-This repository presents the Sun-BEEM analysis workflow and statistical logic: exposure construction, clinical outcome models, molecular associations, mediation and sensitivity analyses. It contains code and documentation. UK Biobank inputs are accessed under authorisation and kept in the research environment.
+This repository presents the Sun-BEEM analysis workflow and statistical logic: exposure construction, clinical outcome models, molecular associations, mediation and sensitivity analyses. The implementation follows the final manuscript Methods and contains code and documentation. UK Biobank inputs are accessed under authorisation and kept in the research environment.
 
 ## Code organisation
 
@@ -26,6 +26,7 @@ source("tools/install_dependencies.R")
 Set a project directory for inputs and generated outputs, then prepare its folders:
 
 ```r
+Sys.setenv(SUN_BEEM_CODE_ROOT = normalizePath("."))
 Sys.setenv(SUN_BEEM_PROJECT_ROOT = "/path/to/project")
 Sys.setenv(SUN_BEEM_EXTERNAL_ROOT = "/path/to/external/inputs")
 source("tools/prepare_project.R")
@@ -44,7 +45,9 @@ Sys.setenv(SUN_BEEM_N_BOOT = "1000", SUN_BEEM_SEED = "123")
 source("/path/to/Sun-BEEM/analysis/step8/3-cancer-meadiation.R")
 ```
 
-Each count/seed combination has a separate output directory and saved run settings. The example sets 1,000 resamples; the default count is 50.
+Each count/seed combination has a separate output directory and saved run settings. The default count is 1,000 resamples, as specified in the Methods.
+
+For incidence analyses, set `SUN_BEEM_HOSPITAL_END_DATE` and `SUN_BEEM_CANCER_END_DATE` to the documented linkage end dates. Baseline assessment centre (field 54) is used by the adjusted vitamin D and childhood-sunburn models. Input details are in the workflow guide.
 
 ## Data access and repository checks
 

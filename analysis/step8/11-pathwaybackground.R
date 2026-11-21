@@ -23,7 +23,7 @@ stopifnot(all(c("biomarker", "estimate", "p_adj") %in% names(dat)))
 dat2 <- dat %>%
   mutate(
     neglog10_padj = -log10(p_adj),
-    sig = !is.na(p_adj) & p_adj < 0.05,
+    sig = !is.na(p_adj) & p_adj < 0.01,
     plot_group = case_when(
       sig & estimate > 0 ~ "Upregulated",
       sig & estimate < 0 ~ "Downregulated",
@@ -45,17 +45,17 @@ sig_down_all <- dat2 %>%
 sig_all <- bind_rows(sig_up_all, sig_down_all) %>%
   arrange(p_adj)
 
-readr::write_csv(sig_up_all,   file.path(out_dir, "Figure3A_sig_up_all_FDR0.05.csv"))
-readr::write_csv(sig_down_all, file.path(out_dir, "Figure3A_sig_down_all_FDR0.05.csv"))
-readr::write_csv(sig_all,      file.path(out_dir, "Figure3A_sig_all_FDR0.05_up_down_combined.csv"))
+readr::write_csv(sig_up_all,   file.path(out_dir, "Figure3A_sig_up_all_FDR0.01.csv"))
+readr::write_csv(sig_down_all, file.path(out_dir, "Figure3A_sig_down_all_FDR0.01.csv"))
+readr::write_csv(sig_all,      file.path(out_dir, "Figure3A_sig_all_FDR0.01_up_down_combined.csv"))
 
 sig_summary <- tibble(
-  FDR_threshold = 0.05,
+  FDR_threshold = 0.01,
   n_up = n_up,
   n_down = n_down,
   n_total = n_up + n_down
 )
-readr::write_csv(sig_summary, file.path(out_dir, "Figure3A_sig_summary_counts_FDR0.05.csv"))
+readr::write_csv(sig_summary, file.path(out_dir, "Figure3A_sig_summary_counts_FDR0.01.csv"))
 
 top_up <- sig_up_all %>% slice_head(n = 10)
 top_down <- sig_down_all %>% slice_head(n = 10)
@@ -68,7 +68,7 @@ p_volcano <- ggplot(dat2, aes(x = estimate, y = neglog10_padj)) +
     "Downregulated" = "#4575B4",
     "Not significant" = "grey80"
   )) +
-  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "grey50") +
+  geom_hline(yintercept = -log10(0.01), linetype = "dashed", color = "grey50") +
   geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
   ggrepel::geom_text_repel(
     data = top_labels,
@@ -82,7 +82,7 @@ p_volcano <- ggplot(dat2, aes(x = estimate, y = neglog10_padj)) +
   annotate(
     "text",
     x = Inf, y = Inf,
-    label = paste0("FDR < 0.05\nUp: ", n_up, "\nDown: ", n_down),
+    label = paste0("FDR < 0.01\nUp: ", n_up, "\nDown: ", n_down),
     hjust = 1.1, vjust = 1.1, size = 3.5
   ) +
   labs(

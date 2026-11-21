@@ -36,14 +36,28 @@ Run these stages in order when their inputs are available:
 
 `00_component_models.R` contains the component-model portion of the saved script through the `targeted_cox_results.csv` export. Its later exploratory scenario blocks are separate from the publication's scenario calculations in `step5`.
 
-The NMR mediation material currently includes the actual point-estimate checking and supplementary selection scripts; the original full NMR bootstrap script remains to be located.
+The Methods-oriented NMR implementation uses `analysis/step10/5-cancer-mediation.R` and `6-cvd-mediation.R`, followed by `7-cancer-combine.R` and `8-cvd-combine.R`. These implement the stated Cox coefficient-change models and participant bootstrap with an unadjusted Sun-BEEM–metabolite association P<0.01 filter. Non-ratio selection uses the existing Nightingale dictionary. `10-supplement.R` exports the corresponding protective-mediator tables.
+
+The added NMR runners and adjusted construct-validation model implement the final Methods.
 
 ## Bootstrap runs
 
-Set `SUN_BEEM_N_BOOT` to the requested count (integer, at least 10) and `SUN_BEEM_SEED` to the run seed. The default count is 50, retained from the saved protein scripts. Seed 123 is the default for this release's execution controls. Cox models, the coefficient-change estimator and percentile intervals are unchanged.
+Set `SUN_BEEM_N_BOOT` to the requested count (integer, at least 10) and `SUN_BEEM_SEED` to the run seed. The default count is 1,000 for protein and metabolite mediation, matching the final Methods. Seed 123 is the default for this release's execution controls. Both layers use the same covariates, coefficient-change estimator and percentile intervals specified in the Methods.
 
-Outputs use `step8/results/bootstrap_<count>_seed_<seed>/`. Each run saves requested and successful resampling counts, input fingerprints, settings and `sessionInfo()`. Integration scripts select the same count/seed directory. Fixed per-biomarker random streams keep resampling consistent when a run is resumed. Different counts and seeds use separate directories.
+Protein outputs use `step8/results/bootstrap_<count>_seed_<seed>/`; NMR outputs use the same naming under `step10/results/`. Each run saves requested and successful resampling counts, input fingerprints, settings and `sessionInfo()`. Integration scripts select the same count/seed directory. Fixed per-biomarker random streams keep resampling consistent when a run is resumed. Different counts and seeds use separate directories.
 
 ## Environment
 
 `requirements-R.txt` lists the R packages used. `clusterProfiler`, `enrichplot` and `org.Hs.eg.db` are Bioconductor packages; `grid` is included with R. The installation helper installs missing CRAN/Bioconductor packages. Record the environment used with `sessionInfo()` in the project output directory. Source syntax was checked with R 4.5.3.
+
+## Methods alignment and required metadata
+
+The primary mortality preparation defines all-cause deaths from registered death dates, including deaths without a primary cause, and propagates this definition to clinical and molecular cohorts. Administrative mortality censoring remains 4 August 2025.
+
+Incident models end follow-up at the first qualifying event, death, recorded loss to follow-up or the relevant registry cutoff. Set `SUN_BEEM_HOSPITAL_END_DATE` and `SUN_BEEM_CANCER_END_DATE` from the project linkage metadata. Incidence cohorts carry `death_date` and `loss_to_followup_date` (field 191) from preparation. Run the step3/step4 stages before the incidence models.
+
+`analysis/step5/13-construct-validation.R` fits the category comparisons adjusted for age group, sex, BMI category, season and assessment centre, and the unadjusted component comparisons. It reads baseline centre field `p54_i0` from the request/social export, or from the CSV specified by `SUN_BEEM_BASELINE_METADATA`. Season is derived from baseline assessment month: winter December–February, spring March–May, summer June–August and autumn September–November. Missing adjustment values are excluded per response. These covariates are retained in the saved model description.
+
+`analysis/step5/14-complete-case-sensitivity.R` uses pre-imputation core-covariate membership saved by step2 and repeats adjusted mortality models. The PWAS direction/enrichment input threshold is FDR<0.01; the enrichment-term threshold remains FDR<0.05.
+
+Use a new `SUN_BEEM_PROJECT_ROOT` for executing this Methods-oriented release. Source inputs and generated outputs remain in that project directory. This keeps existing project results intact.

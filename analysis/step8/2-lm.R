@@ -71,9 +71,9 @@ olink_lm_trend_df <- olink_lm_trend_df %>%
   mutate(
     p_adj = p.adjust(p_trend, method = "fdr"),
     direction = case_when(
-      p_adj >= 0.05 ~ "no_change",
-      p_adj < 0.05 & estimate > 0 ~ "up",
-      p_adj < 0.05 & estimate < 0 ~ "down"
+      p_adj >= 0.01 ~ "no_change",
+      p_adj < 0.01 & estimate > 0 ~ "up",
+      p_adj < 0.01 & estimate < 0 ~ "down"
     )
   )
 

@@ -17,43 +17,43 @@ getwd()
 outcomes <- read.csv("../washed_data/3_1_1_death_data.csv")
 
 outcomes <- outcomes %>% 
-  mutate(all_cause_mortality = ifelse(is.na(primary_cause), "no", "yes"))
+  mutate(death_date = as.Date(death_date),
+         all_cause_mortality = ifelse(!is.na(death_date) & death_date <= as.Date("2025-08-04"), "yes", "no"))
 
 endtime <- "2025-08-04" # most recent date code has been run
 endtime <- as.Date(endtime)
 
 outcomes <- outcomes %>%
-  mutate(death_time = ifelse(all_cause_mortality == "yes", as.Date(death_date) - as.Date(date_assess),
-                             ifelse(all_cause_mortality == "no", as.numeric(endtime) - as.numeric(as.Date(date_assess)), NA)))
+  mutate(death_time = as.numeric(pmin(death_date, endtime, na.rm = TRUE) - as.Date(date_assess)))
 
 outcomes <- outcomes %>%
   mutate(primary_cause = replace_na(primary_cause, "no")) %>% 
   mutate(cvd_mortality_narrow = 
-           ifelse(str_detect(primary_cause, "I21|I22|I23|I24|I25|I60|I61|I62|I63|I64"), "yes", "no"))
+           ifelse(all_cause_mortality == "yes" & str_detect(primary_cause, "I21|I22|I23|I24|I25|I60|I61|I62|I63|I64"), "yes", "no"))
 
 table(outcomes$cvd_mortality_narrow)
 
 outcomes <- outcomes %>% 
   mutate(cancer_mortality = 
-           ifelse(str_detect(primary_cause, "C|D37|D38|D39|D40|D41|D42|D43|D44|D45|D46|D47|D48"), "yes", "no"))
+           ifelse(all_cause_mortality == "yes" & str_detect(primary_cause, "^(C([0-8][0-9]|9[0-7])|D(3[7-9]|4[0-8]))"), "yes", "no"))
 
 table(outcomes$cancer_mortality)
 
 outcomes <- outcomes %>% 
   mutate(skin_cancer_mortality = 
-           ifelse(str_detect(primary_cause, "C43|C44"), "yes", "no"))
+           ifelse(all_cause_mortality == "yes" & str_detect(primary_cause, "C43|C44"), "yes", "no"))
 
 table(outcomes$skin_cancer_mortality)
 
 outcomes <- outcomes %>% 
   mutate(melanoma_skin_cancer_mortality = 
-           ifelse(str_detect(primary_cause, "C43"), "yes", "no"))
+           ifelse(all_cause_mortality == "yes" & str_detect(primary_cause, "C43"), "yes", "no"))
 
 table(outcomes$melanoma_skin_cancer_mortality)
 
 outcomes <- outcomes %>% 
   mutate(non_melanoma_mortality = 
-           ifelse(str_detect(primary_cause, "C44"), "yes", "no"))
+           ifelse(all_cause_mortality == "yes" & str_detect(primary_cause, "C44"), "yes", "no"))
 
 outcomes <- outcomes %>% 
   mutate(non_skin_cancer_mortality = 
